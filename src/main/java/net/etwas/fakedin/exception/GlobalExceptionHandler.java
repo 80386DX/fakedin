@@ -19,7 +19,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    // Ovde možeš dodavati i druge exception-e kasnije
     @ExceptionHandler(Exception.class)
     public ResponseEntity<AdCheckResponse> handleGeneralException(Exception ex) {
         AdCheckResponse response = new AdCheckResponse(

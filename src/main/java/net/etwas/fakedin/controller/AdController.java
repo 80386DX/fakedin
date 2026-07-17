@@ -26,16 +26,16 @@ public class AdController {
             throw new InvalidLinkedInUrlException("URL must be LinkedIn link (linkedin.com/jobs/view)");
         }
 
-        // TODO: Ovde će kasnije ići poziv Python scraper-u
+        // TODO: Method for calling Python scraper
         // AdRequestDTO dto = scraperService.scrapeLinkedInUrl(url);
 
-        // Za sada samo test
+        // For testing
         // return ResponseEntity.ok(adService.processAd(dto));
 
         return ResponseEntity.ok(new AdCheckResponse(ResponseStatus.ERROR, 0));
     }
 
-    // Ako želiš i direktan unos podataka (za testiranje)
+    // For testing, direct call to DB
     @PostMapping("/check-direct")
     public ResponseEntity<AdCheckResponse> checkDirect(@RequestBody AdRequestDTO request) {
         AdCheckResponse response = adService.processAd(request);

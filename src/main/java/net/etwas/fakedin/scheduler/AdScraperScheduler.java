@@ -14,21 +14,21 @@ public class AdScraperScheduler {
     private final LinkedInScraperService scraperService;
 
     /**
-     * Jednom nedeljno - nedeljom u 10:00 ujutru
+     * Once a week at 10:00
      */
     @Scheduled(cron = "0 0 10 * * SUN")
     public void weeklyScrape() {
-        log.info("Pokrećem nedeljni scraping oglasa...");
+        log.info("Weekly bot scraping started...");
         try {
             scraperService.scrapeRecentJobs();
-            log.info("Nedeljni scraping završen uspešno.");
+            log.info("Scraping successful.");
         } catch (Exception e) {
-            log.error("Greška prilikom nedeljnog scrapinga", e);
+            log.error("Error while scraping", e);
         }
     }
 
     /**
-     * Za testiranje - svakih 5 minuta (zakomentariši kasnije)
+     * For testing purposes, every 5 min
      */
     // @Scheduled(fixedRate = 300000) // 5 minuta
     // public void testScrape() {
