@@ -2,7 +2,6 @@ package net.etwas.fakedin.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.etwas.fakedin.scheduler.LinkedInScraperService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +29,7 @@ public class AdScraperScheduler {
     /**
      * For testing purposes, every 5 min
      */
-    // @Scheduled(fixedRate = 300000) // 5 minuta
+    // @Scheduled(fixedRate = 300000) // 5 minutes
     // public void testScrape() {
     //     log.info("Test scraping...");
     //     scraperService.scrapeRecentJobs();

@@ -92,91 +92,25 @@ class AdServiceTest {
         verify(appearanceRepository, times(1)).save(any(AdAppearance.class));
     }
 
+
     @Test
     void shouldReturnSuspiciousWhenManyReposts() {
+        // Given
         Ad existingAd = Ad.builder().id(1L).build();
 
-        when(adRepository.findByContentHash(anyString())).thenReturn(Optional.of(existingAd));
-        when(appearanceRepository.countByAdId(1L)).thenReturn(5L); // more than 3
+        when(adRepository.findByContentHash(anyString()))
+                .thenReturn(Optional.of(existingAd));
 
+        when(appearanceRepository.countByAdId(1L))
+                .thenReturn(5L);   // 5 appearances
+
+        // When
         AdCheckResponse response = adService.processAd(testDto);
 
+        // Then
         assertEquals(ResponseStatus.SUSPICIOUS, response.status());
         assertEquals(6, response.repostedCount());
     }
-
-//    @Test
-//    void shouldGenerateConsistentHashForSameInput() {
-//        // Given
-//        when(adRepository.findByContentHash(anyString())).thenReturn(Optional.empty());
-//        when(adRepository.save(any(Ad.class))).thenAnswer(inv -> {
-//            Ad ad = inv.getArgument(0);
-//            ad.setId(1L);
-//            return ad;
-//        });
-//
-//        // When
-//        AdCheckResponse response1 = adService.processAd(testDto);
-//        AdCheckResponse response2 = adService.processAd(testDto);
-//
-//        // Then
-//        assertEquals(ResponseStatus.NEW, response1.status());
-//        assertEquals(ResponseStatus.REPOSTED, response2.status()); // Second time should be repost
-//    }
-
-//    @Test
-//    void shouldDetectRepostOnSecondCallWithSameData() {
-//        // Given
-//        Ad existingAd = Ad.builder()
-//                .id(1L)
-//                .companyName(testDto.companyName())
-//                .jobTitle(testDto.jobTitle())
-//                .contentHash("some-fixed-hash") // simuliramo da hash postoji
-//                .build();
-//
-//        when(adRepository.findByContentHash(anyString())).thenReturn(Optional.of(existingAd));
-//        when(appearanceRepository.countByAdId(1L)).thenReturn(0L); // prvi appearance
-//
-//        // When
-//        AdCheckResponse firstResponse = adService.processAd(testDto);   // prvi put
-//        AdCheckResponse secondResponse = adService.processAd(testDto);  // drugi put isti podaci
-//
-//        // Then
-//        assertEquals(ResponseStatus.NEW, firstResponse.status());
-//        assertEquals(1, firstResponse.repostedCount());
-//
-//        assertEquals(ResponseStatus.REPOSTED, secondResponse.status());
-//        assertEquals(2, secondResponse.repostedCount());
-//    }
-
-//    @Test
-//    void shouldDetectRepostOnSecondCallWithSameData() {
-//        // Given
-//        Ad existingAd = Ad.builder()
-//                .id(1L)
-//                .companyName(testDto.companyName())
-//                .jobTitle(testDto.jobTitle())
-//                .contentHash("fixed-hash-for-test")
-//                .build();
-//
-//        // Važno: isti hash za oba poziva
-//        when(adRepository.findByContentHash(anyString()))
-//                .thenReturn(Optional.of(existingAd));
-//
-//        when(appearanceRepository.countByAdId(1L))
-//                .thenReturn(0L);   // pre prvog appearance-a
-//
-//        // When
-//        AdCheckResponse first = adService.processAd(testDto);
-//        AdCheckResponse second = adService.processAd(testDto);
-//
-//        // Then
-//        assertEquals(ResponseStatus.NEW, first.status());
-//        assertEquals(1, first.repostedCount());
-//
-//        assertEquals(ResponseStatus.REPOSTED, second.status());
-//        assertEquals(2, second.repostedCount());
-//    }
 
     @Test
     void shouldDetectRepostOnSecondCallWithSameData() {
@@ -206,12 +140,29 @@ class AdServiceTest {
 
     @Test
     void shouldHandleNullValuesGracefully() {
-        AdRequestDTO nullDto = new AdRequestDTO("Company", "Title", null, null, null, null);
+        // Given
+        AdRequestDTO badDto = new AdRequestDTO(
+                "Test Company",
+                "Test Job",
+                null,
+                null,
+                null,
+                null
+        );
 
         when(adRepository.findByContentHash(anyString())).thenReturn(Optional.empty());
-        when(adRepository.save(any())).thenReturn(new Ad());
+        when(adRepository.save(any(Ad.class))).thenAnswer(inv -> {
+            Ad ad = inv.getArgument(0);
+            ad.setId(99L);
+            return ad;
+        });
 
-        assertDoesNotThrow(() -> adService.processAd(nullDto));
+        // When & Then
+        assertDoesNotThrow(() -> {
+            AdCheckResponse response = adService.processAd(badDto);
+            assertEquals(ResponseStatus.NEW, response.status());
+            assertEquals(1, response.repostedCount());
+        });
     }
 
 }
